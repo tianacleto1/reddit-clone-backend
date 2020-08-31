@@ -1,16 +1,22 @@
 package com.anacleto.redditclonebackend.service;
 
+import com.anacleto.redditclonebackend.config.security.JwtProvider;
 import com.anacleto.redditclonebackend.exception.FailToSendEmailException;
 import com.anacleto.redditclonebackend.model.NotificationEmail;
 import com.anacleto.redditclonebackend.model.User;
 import com.anacleto.redditclonebackend.model.VerificationToken;
+import com.anacleto.redditclonebackend.model.dto.AuthenticationResponseDTO;
+import com.anacleto.redditclonebackend.model.dto.LoginRequestDTO;
 import com.anacleto.redditclonebackend.model.dto.RegisterRequestDTO;
 import com.anacleto.redditclonebackend.repository.UserRepository;
 import com.anacleto.redditclonebackend.repository.VerificationTokenRepository;
 import com.anacleto.redditclonebackend.util.Constants;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +29,8 @@ import java.util.UUID;
 @Service
 public class AuthService {
 
+    private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
@@ -30,8 +38,11 @@ public class AuthService {
     private final MailService mailService;
 
     @Autowired
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, VerificationTokenRepository
-                        verificationTokenRepository, MailContentBuilderService mailContentBuilder, MailService mailService) {
+    public AuthService(AuthenticationManager authenticationManager, JwtProvider jwtProvider, UserRepository userRepository,
+                       PasswordEncoder passwordEncoder, VerificationTokenRepository verificationTokenRepository,
+                                                    MailContentBuilderService mailContentBuilder, MailService mailService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtProvider = jwtProvider;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.verificationTokenRepository = verificationTokenRepository;
@@ -50,11 +61,23 @@ public class AuthService {
 
         userRepository.save(user);
 
+        log.info("User Registered Successfully, Sending Authentication Email");
         String token = generateVerificationToken(user);
         String message = mailContentBuilder.build("Thank you for signing up to Spring Reddit, please click on the below url to activate your account : "
                 + Constants.ACTIVATION_EMAIL + "/" + token);
 
         mailService.sendMail(new NotificationEmail("Please Activate your account", user.getEmail(), message));
+    }
+
+    public AuthenticationResponseDTO login(LoginRequestDTO loginRequestDTO) {
+        Authentication authenticate = authenticationManager
+                                            .authenticate(new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(),
+                                            loginRequestDTO.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        String authenticationToken = jwtProvider.generateToken(authenticate);
+
+        return new AuthenticationResponseDTO(authenticationToken, loginRequestDTO.getUsername());
     }
 
     private String generateVerificationToken(User user) {

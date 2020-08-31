@@ -1,5 +1,7 @@
 package com.anacleto.redditclonebackend.controller;
 
+import com.anacleto.redditclonebackend.model.dto.AuthenticationResponseDTO;
+import com.anacleto.redditclonebackend.model.dto.LoginRequestDTO;
 import com.anacleto.redditclonebackend.model.dto.RegisterRequestDTO;
 import com.anacleto.redditclonebackend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,20 @@ public class AuthController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    @PostMapping("/login")
+    public AuthenticationResponseDTO login(@RequestBody LoginRequestDTO loginRequest) {
+        return authService.login(loginRequest);
+    }
+
     @GetMapping("accountVerification/{token}")
     public ResponseEntity<String> verifyAccount(@PathVariable String token) {
         authService.verifyAccount(token);
 
         return new ResponseEntity<>("Account Activated Successully", HttpStatus.OK);
+    }
+
+    @GetMapping("/hello")
+    public ResponseEntity<String> hello() {
+        return new ResponseEntity<>("Its working fine", HttpStatus.OK);
     }
 }
