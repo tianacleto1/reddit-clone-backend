@@ -16,14 +16,15 @@ import java.security.cert.CertificateException;
 public class JwtProvider {
 
     private KeyStore keyStore;
+    private static final String PRIVATE_KEY = System.getenv("KEYSTORE_PRIVATE_KEY");
 
     @PostConstruct
     public void init() {
         try {
             keyStore = KeyStore.getInstance("JKS");
-            InputStream resourceAsStream = getClass().getResourceAsStream("/springblog.jks");
+            InputStream resourceAsStream = getClass().getResourceAsStream("/redditclone.jks");
 
-            keyStore.load(resourceAsStream, "secret".toCharArray());
+            keyStore.load(resourceAsStream, PRIVATE_KEY.toCharArray());
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException ex) {
             // TODO: Add a personalized exception
             throw new FailToSendEmailException("Exception occurred while loading keystore!");
@@ -41,10 +42,10 @@ public class JwtProvider {
 
     private PrivateKey getPrivateKey() {
         try {
-            return (PrivateKey) keyStore.getKey("springblog", "secret".toCharArray());
+            return (PrivateKey) keyStore.getKey("redditclone", PRIVATE_KEY.toCharArray());
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
             // TODO: Add a personalized exception
-            throw new FailToSendEmailException("Exception occured while retrieving public key from keystore");
+            throw new FailToSendEmailException("Exception occurred while retrieving public key from keystore");
         }
     }
 }
