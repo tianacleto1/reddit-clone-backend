@@ -1,6 +1,6 @@
 package com.anacleto.redditclonebackend.service;
 
-import com.anacleto.redditclonebackend.config.security.JwtProvider;
+import com.anacleto.redditclonebackend.security.JwtProvider;
 import com.anacleto.redditclonebackend.exception.FailToSendEmailException;
 import com.anacleto.redditclonebackend.model.NotificationEmail;
 import com.anacleto.redditclonebackend.model.User;
@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,6 +81,33 @@ public class AuthService {
         return new AuthenticationResponseDTO(authenticationToken, loginRequestDTO.getUsername());
     }
 
+    @Transactional(readOnly = true)
+    User getCurrentUser() {
+        org.springframework.security.core.userdetails.User principal =
+                (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext()
+                                                                                            .getAuthentication()
+                                                                                            .getPrincipal();
+
+        return userRepository.findByUsername(principal.getUsername())
+                                .orElseThrow(() -> new UsernameNotFoundException(("User not found " + principal.getUsername())));
+    }
+
+    @Transactional
+    public void fetchUserAndEnable(VerificationToken verificationToken) {
+        String username = verificationToken.getUser().getUsername();
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new FailToSendEmailException("User Not Found with id - " + username));
+        user.setEnabled(true);
+
+        userRepository.save(user);
+    }
+
+    public void verifyAccount(String token) {
+        Optional<VerificationToken> verificationTokenOptional = verificationTokenRepository.findByToken(token);
+        verificationTokenOptional.orElseThrow(() -> new FailToSendEmailException("Invalid Token"));
+        fetchUserAndEnable(verificationTokenOptional.get());
+    }
+
     private String generateVerificationToken(User user) {
         String token = UUID.randomUUID().toString();
 
@@ -94,21 +122,5 @@ public class AuthService {
 
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
-    }
-
-    public void verifyAccount(String token) {
-        Optional<VerificationToken> verificationTokenOptional = verificationTokenRepository.findByToken(token);
-        verificationTokenOptional.orElseThrow(() -> new FailToSendEmailException("Invalid Token"));
-        fetchUserAndEnable(verificationTokenOptional.get());
-    }
-
-    @Transactional
-    public void fetchUserAndEnable(VerificationToken verificationToken) {
-        String username = verificationToken.getUser().getUsername();
-
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new FailToSendEmailException("User Not Found with id - " + username));
-        user.setEnabled(true);
-
-        userRepository.save(user);
     }
 }

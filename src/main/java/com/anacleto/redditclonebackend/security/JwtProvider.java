@@ -1,4 +1,4 @@
-package com.anacleto.redditclonebackend.config.security;
+package com.anacleto.redditclonebackend.security;
 
 import com.anacleto.redditclonebackend.exception.FailToSendEmailException;
 import io.jsonwebtoken.Jwts;
@@ -40,12 +40,36 @@ public class JwtProvider {
                 .compact();
     }
 
+    public boolean validateToken(String jwt) {
+        Jwts.parser().setSigningKey(getPublicKey()).parseClaimsJws(jwt);
+
+        return true;
+    }
+
+    public String getUsernameFromJWT(String token) {
+        return Jwts.parser()
+                   .setSigningKey(getPublicKey())
+                   .parseClaimsJws(token)
+                   .getBody()
+                   .getSubject();
+
+    }
+
     private PrivateKey getPrivateKey() {
         try {
             return (PrivateKey) keyStore.getKey("redditclone", PRIVATE_KEY.toCharArray());
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
             // TODO: Add a personalized exception
             throw new FailToSendEmailException("Exception occurred while retrieving public key from keystore");
+        }
+    }
+
+    private PublicKey getPublicKey() {
+        try {
+            return keyStore.getCertificate("redditclone").getPublicKey();
+        } catch (KeyStoreException ex) {
+            // TODO add a psersonalized exception
+            throw new FailToSendEmailException("An error occurred while retrieving public key from keystore!");
         }
     }
 }
