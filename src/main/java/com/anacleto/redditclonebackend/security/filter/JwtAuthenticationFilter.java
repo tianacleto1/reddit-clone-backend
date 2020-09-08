@@ -1,6 +1,7 @@
 package com.anacleto.redditclonebackend.security.filter;
 
 import com.anacleto.redditclonebackend.security.JwtProvider;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
         String jwt = getJwtFromRequest(request);
 
         if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
