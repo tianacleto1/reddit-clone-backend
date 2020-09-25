@@ -2,7 +2,10 @@ package com.anacleto.redditclonebackend.controller;
 
 import com.anacleto.redditclonebackend.model.dto.SubredditDTO;
 import com.anacleto.redditclonebackend.service.SubredditService;
+import com.anacleto.redditclonebackend.service.exception.SubredditNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,12 +28,18 @@ public class SubredditController {
     }
 
     @GetMapping("/{id}")
-    public SubredditDTO getSubredditById(@PathVariable Long id) {
-        return subredditService.getById(id);
+    public ResponseEntity<SubredditDTO> getSubredditById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok().body(subredditService.getById(id));
+        } catch (SubredditNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
-    public SubredditDTO createSubreddit(@RequestBody @Valid SubredditDTO subredditDTO) {
-        return subredditService.createSubreddit(subredditDTO);
+    public ResponseEntity<SubredditDTO> createSubreddit(@RequestBody @Valid SubredditDTO subredditDTO) {
+        SubredditDTO createdSubreddit = subredditService.createSubreddit(subredditDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdSubreddit);
     }
 }

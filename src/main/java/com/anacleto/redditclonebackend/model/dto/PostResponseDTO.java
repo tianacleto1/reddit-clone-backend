@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostResponse {
+public class PostResponseDTO {
 
     private Long id;
     private String postName;

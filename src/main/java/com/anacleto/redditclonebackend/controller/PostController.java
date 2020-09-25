@@ -1,2 +1,11 @@
-package com.anacleto.redditclonebackend.controller;public class PostController {
+package com.anacleto.redditclonebackend.controller;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/v1/posts")
+public class PostController {
+
+
 }
