@@ -3,7 +3,6 @@ package com.anacleto.redditclonebackend.service;
 import com.anacleto.redditclonebackend.model.Subreddit;
 import com.anacleto.redditclonebackend.model.dto.SubredditDTO;
 import com.anacleto.redditclonebackend.repository.SubredditRepository;
-import com.anacleto.redditclonebackend.service.exception.SubredditNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,8 +33,8 @@ public class SubredditService {
 
     @Transactional(readOnly = true)
     public SubredditDTO getById(Long id) {
-        Subreddit subreddit = subredditRepository.findById(id).orElseThrow(() -> new
-                SubredditNotFoundException("Subreddit not found with id " + id));
+        Subreddit subreddit = subredditRepository.findById(id).orElseThrow(/*() -> new
+                SubredditNotFoundException("Subreddit not found with id " + id)*/);
 
         return mapToDTO(subreddit);
     }
@@ -43,7 +42,6 @@ public class SubredditService {
     @Transactional
     public SubredditDTO createSubreddit(SubredditDTO subredditDTO) {
         Subreddit subreddit = subredditRepository.save(mapToSubreddit(subredditDTO));
-
         subredditDTO.setId(subreddit.getId());
 
         return subredditDTO;
@@ -59,7 +57,7 @@ public class SubredditService {
     }
 
     private Subreddit mapToSubreddit(SubredditDTO subredditDTO) {
-        return Subreddit.builder().name("/r/" + subredditDTO.getName())
+        return Subreddit.builder().name(subredditDTO.getName())
                                     .description(subredditDTO.getDescription())
                                     .user(authService.getCurrentUser())
                                     .createdDate(Instant.now())
