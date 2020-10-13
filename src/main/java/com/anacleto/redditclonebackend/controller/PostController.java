@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/v1/posts")
@@ -36,28 +35,16 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponseDTO> getPostById(@PathVariable Long postId) {
-        try {
-            return ResponseEntity.ok(postService.getPost(postId));
-        } catch (NoSuchElementException ex) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(postService.getPost(postId));
     }
 
     @GetMapping("/subreddit/{subredditId}")
     public ResponseEntity<List<PostResponseDTO>> getPostBySubreddit(@PathVariable Long subredditId) {
-        try {
-            return ResponseEntity.ok(postService.getPostsBySubreddit(subredditId));
-        } catch (NoSuchElementException ex) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(postService.getPostsBySubreddit(subredditId));
     }
 
     @GetMapping("/user/{username}")
     public ResponseEntity<List<PostResponseDTO>> getPostsByUsername(@PathVariable String username) {
-        try {
-            return ResponseEntity.ok(postService.getPostsByUsername(username));
-        } catch (NoSuchElementException ex) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(postService.getPostsByUsername(username));
     }
 }

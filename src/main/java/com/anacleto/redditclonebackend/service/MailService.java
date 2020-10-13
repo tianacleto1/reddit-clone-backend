@@ -16,12 +16,10 @@ import org.springframework.stereotype.Service;
 class MailService {
 
     private final JavaMailSender mailSender;
-    private final MailContentBuilderService mailContentBuilder;
 
     @Autowired
-    public MailService(JavaMailSender mailSender, MailContentBuilderService mailContentBuilder) {
+    public MailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
-        this.mailContentBuilder = mailContentBuilder;
     }
 
     @Async

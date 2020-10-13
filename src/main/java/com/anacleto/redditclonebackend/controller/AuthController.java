@@ -24,7 +24,7 @@ public class AuthController {
     public ResponseEntity signup(@RequestBody RegisterRequestDTO registerRequestDto) {
         authService.signup(registerRequestDto);
 
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/login")
@@ -36,7 +36,7 @@ public class AuthController {
     public ResponseEntity<String> verifyAccount(@PathVariable String token) {
         authService.verifyAccount(token);
 
-        return new ResponseEntity<>("Account Activated Successully", HttpStatus.OK);
+        return new ResponseEntity<>("Account Activated Successfully", HttpStatus.OK);
     }
 
     @GetMapping("/hello")

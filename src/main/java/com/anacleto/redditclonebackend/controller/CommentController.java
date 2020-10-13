@@ -30,19 +30,11 @@ public class CommentController {
 
     @GetMapping("/post/{postId}")
     public ResponseEntity<List<CommentDTO>> getAllCommentsByUser(@PathVariable("postId") Long postId) throws NoSuchElementException {
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(commentService.getCommentsByPost(postId));
-        } catch (NoSuchElementException ex) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(commentService.getCommentsByPost(postId));
     }
 
     @GetMapping("/user/{userName}")
     public ResponseEntity<List<CommentDTO>> getAllCommentsByUser(@PathVariable("userName") String userName) throws NoSuchElementException{
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(commentService.getCommentByUser(userName));
-        } catch (NoSuchElementException ex) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(commentService.getCommentByUser(userName));
     }
 }

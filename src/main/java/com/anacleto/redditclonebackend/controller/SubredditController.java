@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/v1/subreddit")
@@ -29,11 +28,7 @@ public class SubredditController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SubredditDTO> getSubredditById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok().body(subredditService.getById(id));
-        } catch (NoSuchElementException ex) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(subredditService.getById(id));
     }
 
     @PostMapping
